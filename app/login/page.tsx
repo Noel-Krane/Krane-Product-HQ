@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -38,20 +39,35 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Krane Product HQ
-          </h2>
-          <p className="mt-2 text-center text-sm text-gray-600">
-            Sign in to your account
-          </p>
-        </div>
-        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
-          <div className="rounded-md shadow-sm -space-y-px">
+    <div className="min-h-screen bg-background-yellow flex items-center justify-center p-6">
+      <div className="max-w-md w-full">
+        <div className="bg-white rounded-lg shadow-yellow-lg p-8">
+          {/* Logo */}
+          <div className="flex items-center justify-center mb-6">
+            <Image
+              src="/krane-logo.webp"
+              alt="Krane Logo"
+              width={120}
+              height={120}
+              priority
+              className="h-16 w-auto"
+            />
+          </div>
+
+          {/* Header */}
+          <div className="text-center mb-8">
+            <h2 className="text-3xl font-bold text-charcoal-dark mb-2">
+              Krane Product HQ
+            </h2>
+            <p className="text-charcoal-light">
+              Sign in to your account
+            </p>
+          </div>
+
+          {/* Form */}
+          <form className="space-y-6" onSubmit={handleLogin}>
             <div>
-              <label htmlFor="email-address" className="sr-only">
+              <label htmlFor="email-address" className="block text-sm font-medium text-charcoal-dark mb-2">
                 Email address
               </label>
               <input
@@ -60,14 +76,15 @@ export default function LoginPage() {
                 type="email"
                 autoComplete="email"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all duration-200 text-charcoal"
+                placeholder="you@krane.tech"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
               />
             </div>
+
             <div>
-              <label htmlFor="password" className="sr-only">
+              <label htmlFor="password" className="block text-sm font-medium text-charcoal-dark mb-2">
                 Password
               </label>
               <input
@@ -76,43 +93,58 @@ export default function LoginPage() {
                 type="password"
                 autoComplete="current-password"
                 required
-                className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-b-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
+                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all duration-200 text-charcoal"
+                placeholder="Enter your password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
               />
             </div>
-          </div>
 
-          {error && (
-            <div className="rounded-md bg-red-50 p-4">
-              <div className="flex">
-                <div className="ml-3">
-                  <h3 className="text-sm font-medium text-red-800">{error}</h3>
+            {error && (
+              <div className="rounded-lg bg-red-50 border border-red-200 p-4">
+                <div className="flex">
+                  <div className="flex-shrink-0">
+                    <span className="text-red-600">⚠️</span>
+                  </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-red-800">{error}</h3>
+                  </div>
                 </div>
               </div>
+            )}
+
+            <div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-yellow text-charcoal-dark hover:bg-primary-yellow-dark shadow-yellow-strong hover:shadow-yellow-lg px-6 py-3 rounded-lg font-semibold transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-yellow"
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center">
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-charcoal mr-2"></div>
+                    Signing in...
+                  </span>
+                ) : (
+                  'Sign in'
+                )}
+              </button>
             </div>
-          )}
 
-          <div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {loading ? 'Signing in...' : 'Sign in'}
-            </button>
-          </div>
+            <div className="text-center pt-4 border-t border-gray-200">
+              <p className="text-sm text-charcoal-light">
+                Don&apos;t have an account?{' '}
+                <Link href="/register" className="font-semibold text-primary-yellow hover:text-primary-yellow-dark transition-colors">
+                  Sign up
+                </Link>
+              </p>
+            </div>
+          </form>
+        </div>
 
-          <div className="text-center">
-            <p className="text-sm text-gray-600">
-              Don&apos;t have an account?{' '}
-              <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
-                Sign up
-              </Link>
-            </p>
-          </div>
-        </form>
+        {/* Footer note */}
+        <p className="text-center text-xs text-charcoal-light mt-6">
+          Internal use only - Krane Technologies
+        </p>
       </div>
     </div>
   )
