@@ -1,5 +1,6 @@
 import { createClient } from './server'
 import type { ModuleWithGoals, GoalTodo } from '@/types/product-vision'
+import type { SprintWithOutcomes } from '@/types/roadmap'
 
 // Extended type for todos with module and goal context
 export interface TodoWithContext extends GoalTodo {
@@ -103,4 +104,73 @@ export async function getAllTodosWithContext(): Promise<TodoWithContext[]> {
   }))
 
   return todosWithContext
+}
+
+// Fetch all sprints with outcomes and todos
+export async function getAllSprintsWithOutcomes(): Promise<SprintWithOutcomes[]> {
+  const supabase = await createClient()
+
+  // Fetch all sprints
+  const { data: sprints, error: sprintsError } = await supabase
+    .from('sprints')
+    .select('*')
+    .order('start_date', { ascending: true })
+
+  if (sprintsError) {
+    console.error('Error fetching sprints:', sprintsError)
+    return []
+  }
+
+  // Fetch outcomes and todos for each sprint
+  const sprintsWithOutcomes: SprintWithOutcomes[] = await Promise.all(
+    sprints.map(async (sprint) => {
+      const { data: outcomes, error: outcomesError } = await supabase
+        .from('sprint_outcomes')
+        .select('*')
+        .eq('sprint_id', sprint.id)
+        .order('order_index', { ascending: true })
+
+      if (outcomesError) {
+        console.error('Error fetching outcomes:', outcomesError)
+        return { ...sprint, outcomes: [] }
+      }
+
+      // Fetch todos for each outcome
+      const outcomesWithTodos = await Promise.all(
+        outcomes.map(async (outcome) => {
+          const { data: outcomeTodos, error: outcomeTodosError } = await supabase
+            .from('outcome_todos')
+            .select('todo_id')
+            .eq('outcome_id', outcome.id)
+
+          if (outcomeTodosError) {
+            console.error('Error fetching outcome todos:', outcomeTodosError)
+            return { ...outcome, todos: [] }
+          }
+
+          // Fetch full todo details
+          const todoIds = outcomeTodos.map((ot) => ot.todo_id)
+          if (todoIds.length === 0) {
+            return { ...outcome, todos: [] }
+          }
+
+          const { data: todos, error: todosError } = await supabase
+            .from('goal_todos')
+            .select('*')
+            .in('id', todoIds)
+
+          if (todosError) {
+            console.error('Error fetching todos:', todosError)
+            return { ...outcome, todos: [] }
+          }
+
+          return { ...outcome, todos: todos || [] }
+        })
+      )
+
+      return { ...sprint, outcomes: outcomesWithTodos }
+    })
+  )
+
+  return sprintsWithOutcomes
 }

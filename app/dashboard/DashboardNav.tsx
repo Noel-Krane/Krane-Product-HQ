@@ -10,6 +10,7 @@ export default function DashboardNav() {
     { name: 'Overview', href: '/dashboard' },
     { name: 'Core Product', href: '/dashboard/core-product' },
     { name: 'Prioritization', href: '/dashboard/prioritization' },
+    { name: 'Roadmap', href: '/dashboard/roadmap' },
   ]
 
   return (
