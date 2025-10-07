@@ -3,22 +3,15 @@ export default async function DashboardPage() {
     <main className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
       {/* Welcome Card */}
       <div className="bg-white rounded-lg shadow-yellow-lg p-8 mb-8">
-        <div className="flex items-start space-x-4">
-          <div className="flex-shrink-0">
-            <div className="w-16 h-16 bg-accent-yellow rounded-full flex items-center justify-center shadow-yellow">
-              <span className="text-3xl">👋</span>
-            </div>
-          </div>
-          <div className="flex-1">
-            <h2 className="text-2xl font-bold text-charcoal-dark mb-2">
-              Welcome to Krane Product HQ
-            </h2>
-            <p className="text-charcoal mb-4">
-              Your internal dashboard for managing Krane&apos;s product vision and operations.
-            </p>
-            <div className="inline-flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
-              <span className="text-xs font-medium text-green-800">✓ Authenticated</span>
-            </div>
+        <div>
+          <h2 className="text-2xl font-bold text-charcoal-dark mb-2">
+            Welcome to Krane Product HQ
+          </h2>
+          <p className="text-charcoal mb-4">
+            Your internal dashboard for managing Krane&apos;s product vision and operations.
+          </p>
+          <div className="inline-flex items-center px-3 py-1 bg-green-50 border border-green-200 rounded-full">
+            <span className="text-xs font-medium text-green-800">Authenticated</span>
           </div>
         </div>
       </div>
@@ -28,7 +21,7 @@ export default async function DashboardPage() {
         {/* Card 1 */}
         <div className="bg-white rounded-lg shadow-yellow p-6 hover:shadow-yellow-lg transition-all duration-200">
           <div className="w-12 h-12 bg-accent-yellow rounded-lg flex items-center justify-center mb-4 shadow-yellow">
-            <span className="text-2xl">📊</span>
+            <span className="text-lg font-bold text-charcoal-dark">A</span>
           </div>
           <h3 className="text-lg font-semibold text-charcoal-dark mb-2">Analytics</h3>
           <p className="text-sm text-charcoal-light">
@@ -44,7 +37,7 @@ export default async function DashboardPage() {
         {/* Card 2 */}
         <div className="bg-white rounded-lg shadow-yellow p-6 hover:shadow-yellow-lg transition-all duration-200">
           <div className="w-12 h-12 bg-accent-yellow rounded-lg flex items-center justify-center mb-4 shadow-yellow">
-            <span className="text-2xl">👥</span>
+            <span className="text-lg font-bold text-charcoal-dark">T</span>
           </div>
           <h3 className="text-lg font-semibold text-charcoal-dark mb-2">Team Management</h3>
           <p className="text-sm text-charcoal-light">
@@ -60,7 +53,7 @@ export default async function DashboardPage() {
         {/* Card 3 */}
         <div className="bg-white rounded-lg shadow-yellow p-6 hover:shadow-yellow-lg transition-all duration-200">
           <div className="w-12 h-12 bg-accent-yellow rounded-lg flex items-center justify-center mb-4 shadow-yellow">
-            <span className="text-2xl">⚙️</span>
+            <span className="text-lg font-bold text-charcoal-dark">S</span>
           </div>
           <h3 className="text-lg font-semibold text-charcoal-dark mb-2">Settings</h3>
           <p className="text-sm text-charcoal-light">
@@ -76,7 +69,7 @@ export default async function DashboardPage() {
         {/* Card 4 */}
         <div className="bg-white rounded-lg shadow-yellow p-6 hover:shadow-yellow-lg transition-all duration-200">
           <div className="w-12 h-12 bg-accent-yellow rounded-lg flex items-center justify-center mb-4 shadow-yellow">
-            <span className="text-2xl">📁</span>
+            <span className="text-lg font-bold text-charcoal-dark">P</span>
           </div>
           <h3 className="text-lg font-semibold text-charcoal-dark mb-2">Projects</h3>
           <p className="text-sm text-charcoal-light">
@@ -92,7 +85,7 @@ export default async function DashboardPage() {
         {/* Card 5 */}
         <div className="bg-white rounded-lg shadow-yellow p-6 hover:shadow-yellow-lg transition-all duration-200">
           <div className="w-12 h-12 bg-accent-yellow rounded-lg flex items-center justify-center mb-4 shadow-yellow">
-            <span className="text-2xl">📝</span>
+            <span className="text-lg font-bold text-charcoal-dark">D</span>
           </div>
           <h3 className="text-lg font-semibold text-charcoal-dark mb-2">Documentation</h3>
           <p className="text-sm text-charcoal-light">
@@ -108,7 +101,7 @@ export default async function DashboardPage() {
         {/* Card 6 */}
         <div className="bg-white rounded-lg shadow-yellow p-6 hover:shadow-yellow-lg transition-all duration-200">
           <div className="w-12 h-12 bg-accent-yellow rounded-lg flex items-center justify-center mb-4 shadow-yellow">
-            <span className="text-2xl">💬</span>
+            <span className="text-lg font-bold text-charcoal-dark">H</span>
           </div>
           <h3 className="text-lg font-semibold text-charcoal-dark mb-2">Support</h3>
           <p className="text-sm text-charcoal-light">
@@ -124,20 +117,15 @@ export default async function DashboardPage() {
 
       {/* Info Card */}
       <div className="bg-white border-l-4 border-primary-yellow rounded-lg shadow-yellow p-6">
-        <div className="flex items-start space-x-3">
-          <div className="flex-shrink-0">
-            <span className="text-2xl">💡</span>
-          </div>
-          <div>
-            <h3 className="text-lg font-semibold text-charcoal-dark mb-2">
-              Dashboard Features Coming Soon
-            </h3>
-            <p className="text-charcoal-light text-sm leading-relaxed">
-              This is your internal dashboard. Features and functionality will be added here as
-              the product evolves. Stay tuned for updates on analytics, team management, project
-              tracking, and more.
-            </p>
-          </div>
+        <div>
+          <h3 className="text-lg font-semibold text-charcoal-dark mb-2">
+            Dashboard Features Coming Soon
+          </h3>
+          <p className="text-charcoal-light text-sm leading-relaxed">
+            This is your internal dashboard. Features and functionality will be added here as
+            the product evolves. Stay tuned for updates on analytics, team management, project
+            tracking, and more.
+          </p>
         </div>
       </div>
     </main>

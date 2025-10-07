@@ -7,8 +7,8 @@ export default function DashboardNav() {
   const pathname = usePathname()
 
   const tabs = [
-    { name: 'Overview', href: '/dashboard', icon: '🏠' },
-    { name: 'Core Product', href: '/dashboard/core-product', icon: '🎯' },
+    { name: 'Overview', href: '/dashboard' },
+    { name: 'Core Product', href: '/dashboard/core-product' },
   ]
 
   return (
@@ -30,8 +30,7 @@ export default function DashboardNav() {
                   }
                 `}
               >
-                <span>{tab.icon}</span>
-                <span>{tab.name}</span>
+                {tab.name}
               </Link>
             )
           })}

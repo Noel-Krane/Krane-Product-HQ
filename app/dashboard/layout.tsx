@@ -30,9 +30,10 @@ export default async function DashboardLayout({
               <Image
                 src="/krane-logo.webp"
                 alt="Krane Logo"
-                width={48}
-                height={48}
+                width={150}
+                height={150}
                 className="h-12 w-auto"
+                priority
               />
               <div>
                 <h1 className="text-xl font-bold text-charcoal-dark">Krane Product HQ</h1>
@@ -66,8 +67,8 @@ export default async function DashboardLayout({
               <Image
                 src="/krane-logo.webp"
                 alt="Krane Logo"
-                width={32}
-                height={32}
+                width={100}
+                height={100}
                 className="h-8 w-auto"
               />
               <p className="text-sm text-charcoal-light">
