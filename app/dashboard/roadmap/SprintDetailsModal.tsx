@@ -6,6 +6,7 @@ import type { GoalTodo } from '@/types/product-vision'
 import {
   createOutcome,
   deleteOutcome,
+  deleteSprint,
   addTodoToOutcome,
   removeTodoFromOutcome,
 } from '@/lib/supabase/roadmap-mutations'
@@ -30,19 +31,32 @@ export default function SprintDetailsModal({
   const [newOutcomeName, setNewOutcomeName] = useState('')
   const [selectedOutcomeId, setSelectedOutcomeId] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [localSprint, setLocalSprint] = useState<SprintWithOutcomes | null>(sprint)
 
-  if (!isOpen || !sprint) return null
+  // Update local state when sprint prop changes
+  if (sprint && sprint.id !== localSprint?.id) {
+    setLocalSprint(sprint)
+  }
+
+  if (!isOpen || !localSprint) return null
 
   const handleAddOutcome = async () => {
     if (!newOutcomeName.trim()) return
 
     setIsSaving(true)
     try {
-      await createOutcome({
-        sprint_id: sprint.id,
+      const newOutcome = await createOutcome({
+        sprint_id: localSprint.id,
         name: newOutcomeName,
-        order_index: sprint.outcomes.length,
+        order_index: localSprint.outcomes.length,
       })
+      
+      // Update local state immediately
+      setLocalSprint({
+        ...localSprint,
+        outcomes: [...localSprint.outcomes, { ...newOutcome, todos: [] }],
+      })
+      
       setNewOutcomeName('')
       setIsAddingOutcome(false)
       onUpdate()
@@ -58,15 +72,48 @@ export default function SprintDetailsModal({
 
     try {
       await deleteOutcome(outcomeId)
+      
+      // Update local state immediately
+      setLocalSprint({
+        ...localSprint,
+        outcomes: localSprint.outcomes.filter((o) => o.id !== outcomeId),
+      })
+      
       onUpdate()
     } catch (error) {
       console.error('Failed to delete outcome:', error)
     }
   }
 
+  const handleDeleteSprint = async () => {
+    if (!confirm('Are you sure you want to delete this sprint? This will also delete all outcomes and task assignments.')) return
+
+    try {
+      await deleteSprint(localSprint.id)
+      onClose()
+      onUpdate()
+    } catch (error) {
+      console.error('Failed to delete sprint:', error)
+    }
+  }
+
   const handleAddTodo = async (outcomeId: string, todoId: string) => {
     try {
       await addTodoToOutcome(outcomeId, todoId)
+      
+      // Update local state immediately
+      const todo = availableTodos.find((t) => t.id === todoId)
+      if (todo) {
+        setLocalSprint({
+          ...localSprint,
+          outcomes: localSprint.outcomes.map((outcome) =>
+            outcome.id === outcomeId
+              ? { ...outcome, todos: [...outcome.todos, todo] }
+              : outcome
+          ),
+        })
+      }
+      
       onUpdate()
     } catch (error) {
       console.error('Failed to add todo:', error)
@@ -76,6 +123,17 @@ export default function SprintDetailsModal({
   const handleRemoveTodo = async (outcomeId: string, todoId: string) => {
     try {
       await removeTodoFromOutcome(outcomeId, todoId)
+      
+      // Update local state immediately
+      setLocalSprint({
+        ...localSprint,
+        outcomes: localSprint.outcomes.map((outcome) =>
+          outcome.id === outcomeId
+            ? { ...outcome, todos: outcome.todos.filter((t) => t.id !== todoId) }
+            : outcome
+        ),
+      })
+      
       onUpdate()
     } catch (error) {
       console.error('Failed to remove todo:', error)
@@ -83,15 +141,15 @@ export default function SprintDetailsModal({
   }
 
   const getAvailableTodosForOutcome = (outcomeId: string) => {
-    const outcome = sprint.outcomes.find((o) => o.id === outcomeId)
+    const outcome = localSprint.outcomes.find((o) => o.id === outcomeId)
     if (!outcome) return availableTodos
 
     const assignedTodoIds = outcome.todos.map((t) => t.id)
     return availableTodos.filter((t) => !assignedTodoIds.includes(t.id))
   }
 
-  const totalTodos = sprint.outcomes.reduce((sum, o) => sum + o.todos.length, 0)
-  const completedTodos = sprint.outcomes.reduce(
+  const totalTodos = localSprint.outcomes.reduce((sum, o) => sum + o.todos.length, 0)
+  const completedTodos = localSprint.outcomes.reduce(
     (sum, o) => sum + o.todos.filter((t) => t.completed).length,
     0
   )
@@ -107,25 +165,33 @@ export default function SprintDetailsModal({
               <div className="flex items-center space-x-3 mb-2">
                 <div
                   className="w-4 h-4 rounded"
-                  style={{ backgroundColor: sprint.color }}
+                  style={{ backgroundColor: localSprint.color }}
                 />
-                <h2 className="text-2xl font-bold text-charcoal-dark">{sprint.name}</h2>
+                <h2 className="text-2xl font-bold text-charcoal-dark">{localSprint.name}</h2>
               </div>
               <div className="flex items-center space-x-4 text-sm text-charcoal-light">
                 <span>
-                  {format(parseISO(sprint.start_date), 'MMM d, yyyy')} -{' '}
-                  {format(parseISO(sprint.end_date), 'MMM d, yyyy')}
+                  {format(parseISO(localSprint.start_date), 'MMM d, yyyy')} -{' '}
+                  {format(parseISO(localSprint.end_date), 'MMM d, yyyy')}
                 </span>
                 <span>•</span>
-                <span>{sprint.outcomes.length} outcomes</span>
+                <span>{localSprint.outcomes.length} outcomes</span>
                 <span>•</span>
                 <span>{totalTodos} tasks</span>
                 <span>•</span>
                 <span className="font-semibold text-primary-yellow">{completionRate}% complete</span>
               </div>
-              {sprint.description && (
-                <p className="mt-2 text-sm text-charcoal">{sprint.description}</p>
+              {localSprint.description && (
+                <p className="mt-2 text-sm text-charcoal">{localSprint.description}</p>
               )}
+              <div className="mt-3">
+                <button
+                  onClick={handleDeleteSprint}
+                  className="px-4 py-2 text-sm bg-red-50 text-red-600 rounded-lg hover:bg-red-100 transition-colors font-medium border border-red-200"
+                >
+                  Delete Sprint
+                </button>
+              </div>
             </div>
             <button
               onClick={onClose}
@@ -192,13 +258,13 @@ export default function SprintDetailsModal({
             )}
 
             {/* Outcomes */}
-            {sprint.outcomes.length === 0 ? (
+            {localSprint.outcomes.length === 0 ? (
               <div className="text-center py-8 text-charcoal-light">
                 <p>No outcomes yet. Add your first outcome to get started.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {sprint.outcomes.map((outcome, index) => {
+                {localSprint.outcomes.map((outcome, index) => {
                   const isExpanded = selectedOutcomeId === outcome.id
                   const availableTodos = getAvailableTodosForOutcome(outcome.id)
 
