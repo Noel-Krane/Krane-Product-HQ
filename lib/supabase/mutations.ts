@@ -62,7 +62,29 @@ export async function updateTodoDescription(todoId: string, description: string)
   return data
 }
 
-export async function createTodo(goalId: string, description: string, order: number) {
+export async function updateTodoRiceScores(
+  todoId: string,
+  scores: { reach: number; impact: number; confidence: number; effort: number }
+) {
+  const supabase = createClient()
+  
+  const { data, error } = await supabase
+    .from('goal_todos')
+    .update({ ...scores, updated_at: new Date().toISOString() })
+    .eq('id', todoId)
+    .select()
+    .single()
+
+  if (error) throw error
+  return data
+}
+
+export async function createTodo(
+  goalId: string,
+  description: string,
+  order: number,
+  riceScores?: { reach: number; impact: number; confidence: number; effort: number }
+) {
   const supabase = createClient()
   
   const { data, error } = await supabase
@@ -72,6 +94,10 @@ export async function createTodo(goalId: string, description: string, order: num
       description,
       order,
       completed: false,
+      reach: riceScores?.reach ?? 5,
+      impact: riceScores?.impact ?? 5,
+      confidence: riceScores?.confidence ?? 5,
+      effort: riceScores?.effort ?? 5,
     })
     .select()
     .single()

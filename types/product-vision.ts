@@ -24,6 +24,11 @@ export interface GoalTodo {
   order: number
   description: string
   completed: boolean
+  reach: number
+  impact: number
+  confidence: number
+  effort: number
+  rice_score: number
   created_at: string
   updated_at: string
 }
