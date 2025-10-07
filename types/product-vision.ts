@@ -1,0 +1,37 @@
+export interface Module {
+  id: string
+  name: string
+  order: number
+  challenge: string
+  created_at: string
+  updated_at: string
+}
+
+export interface ModuleGoal {
+  id: string
+  module_id: string
+  order: number
+  title: string
+  current_state: string | null
+  gap: string | null
+  created_at: string
+  updated_at: string
+}
+
+export interface GoalTodo {
+  id: string
+  goal_id: string
+  order: number
+  description: string
+  completed: boolean
+  created_at: string
+  updated_at: string
+}
+
+export interface ModuleWithGoals extends Module {
+  goals: GoalWithTodos[]
+}
+
+export interface GoalWithTodos extends ModuleGoal {
+  todos: GoalTodo[]
+}
