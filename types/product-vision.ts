@@ -7,6 +7,7 @@ export interface Module {
   updated_at: string
 }
 
+// Note: Database table is 'module_goals' but we refer to them as 'initiatives' in the UI
 export interface ModuleGoal {
   id: string
   module_id: string

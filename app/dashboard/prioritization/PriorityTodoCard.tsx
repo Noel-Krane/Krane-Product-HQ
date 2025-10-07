@@ -100,7 +100,7 @@ export default function PriorityTodoCard({ todo, rank, onUpdate }: PriorityTodoC
                   </span>
                   <span className="text-gray-300">•</span>
                   <span className="flex items-center space-x-1">
-                    <span className="font-medium">Goal:</span>
+                    <span className="font-medium">Initiative:</span>
                     <span>{todo.goal_title}</span>
                   </span>
                 </div>
