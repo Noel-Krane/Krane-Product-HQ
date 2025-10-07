@@ -9,6 +9,7 @@ export default function DashboardNav() {
   const tabs = [
     { name: 'Overview', href: '/dashboard' },
     { name: 'Core Product', href: '/dashboard/core-product' },
+    { name: 'Prioritization', href: '/dashboard/prioritization' },
   ]
 
   return (
