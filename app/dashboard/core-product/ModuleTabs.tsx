@@ -1,7 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import type { ModuleWithGoals } from '@/types/product-vision'
+import type { ModuleWithGoals, GoalWithTodos } from '@/types/product-vision'
+import { updateModuleChallenge, updateGoal } from '@/lib/supabase/mutations'
+import { useRouter } from 'next/navigation'
 
 interface ModuleTabsProps {
   modules: ModuleWithGoals[]
@@ -9,6 +11,7 @@ interface ModuleTabsProps {
 
 export default function ModuleTabs({ modules }: ModuleTabsProps) {
   const [activeTab, setActiveTab] = useState(0)
+  const router = useRouter()
 
   if (modules.length === 0) {
     return (
@@ -66,16 +69,7 @@ export default function ModuleTabs({ modules }: ModuleTabsProps) {
         </div>
 
         {/* Challenge Section */}
-        <div className="mb-8">
-          <h3 className="text-sm font-semibold text-charcoal-dark mb-3 uppercase tracking-wide">
-            Challenge
-          </h3>
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-            <p className="text-sm text-charcoal leading-relaxed">
-              {activeModule.challenge}
-            </p>
-          </div>
-        </div>
+        <ChallengeSection module={activeModule} onUpdate={() => router.refresh()} />
 
         {/* Goals Section */}
         <div>
@@ -84,82 +78,273 @@ export default function ModuleTabs({ modules }: ModuleTabsProps) {
           </h3>
           <div className="space-y-6">
             {activeModule.goals.map((goal, index) => (
-              <div
+              <GoalSection
                 key={goal.id}
-                className="border border-gray-200 rounded-lg p-6 hover:border-primary-yellow transition-colors"
-              >
-                {/* Goal Header */}
-                <div className="flex items-start space-x-3 mb-4">
-                  <span className="flex-shrink-0 w-8 h-8 bg-primary-yellow text-white rounded-full flex items-center justify-center text-sm font-bold">
-                    {index + 1}
-                  </span>
-                  <h4 className="text-base font-semibold text-charcoal-dark flex-1 pt-1">
-                    {goal.title}
-                  </h4>
-                </div>
-
-                {/* Current State */}
-                {goal.current_state && (
-                  <div className="mb-4 pl-11">
-                    <p className="text-xs font-semibold text-charcoal-dark mb-2 uppercase tracking-wide">
-                      Current State
-                    </p>
-                    <div className="bg-blue-50 border border-blue-200 rounded p-3">
-                      <p className="text-sm text-charcoal leading-relaxed">
-                        {goal.current_state}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* Gap */}
-                {goal.gap && (
-                  <div className="mb-4 pl-11">
-                    <p className="text-xs font-semibold text-charcoal-dark mb-2 uppercase tracking-wide">
-                      Gap
-                    </p>
-                    <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
-                      <p className="text-sm text-charcoal leading-relaxed">
-                        {goal.gap}
-                      </p>
-                    </div>
-                  </div>
-                )}
-
-                {/* To-Dos */}
-                {goal.todos.length > 0 && (
-                  <div className="pl-11">
-                    <p className="text-xs font-semibold text-charcoal-dark mb-3 uppercase tracking-wide">
-                      To-Do
-                    </p>
-                    <ul className="space-y-2">
-                      {goal.todos.map((todo) => (
-                        <li key={todo.id} className="flex items-start space-x-3">
-                          <input
-                            type="checkbox"
-                            checked={todo.completed}
-                            readOnly
-                            className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-yellow focus:ring-primary-yellow cursor-pointer"
-                          />
-                          <span
-                            className={`text-sm flex-1 ${
-                              todo.completed
-                                ? 'text-charcoal-light line-through'
-                                : 'text-charcoal'
-                            }`}
-                          >
-                            {todo.description}
-                          </span>
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                )}
-              </div>
+                goal={goal}
+                index={index}
+                onUpdate={() => router.refresh()}
+              />
             ))}
           </div>
         </div>
       </div>
+    </div>
+  )
+}
+
+// Challenge Section Component
+function ChallengeSection({
+  module,
+  onUpdate,
+}: {
+  module: ModuleWithGoals
+  onUpdate: () => void
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [challenge, setChallenge] = useState(module.challenge)
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    setError(null)
+    try {
+      await updateModuleChallenge(module.id, challenge)
+      setIsEditing(false)
+      onUpdate()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setChallenge(module.challenge)
+    setIsEditing(false)
+    setError(null)
+  }
+
+  return (
+    <div className="mb-8">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-charcoal-dark uppercase tracking-wide">
+          Challenge
+        </h3>
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="text-xs px-3 py-1 bg-primary-yellow text-charcoal-dark rounded hover:bg-primary-yellow-dark transition-colors font-medium"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+
+      {isEditing ? (
+        <div className="space-y-3">
+          <textarea
+            value={challenge}
+            onChange={(e) => setChallenge(e.target.value)}
+            className="w-full min-h-[100px] px-4 py-3 border border-gray-300 rounded-lg focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all text-sm text-charcoal"
+            placeholder="Enter challenge description..."
+          />
+          {error && (
+            <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-2">
+              {error}
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-4 py-2 bg-primary-yellow text-charcoal-dark rounded hover:bg-primary-yellow-dark transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={isSaving}
+              className="px-4 py-2 bg-gray-200 text-charcoal-dark rounded hover:bg-gray-300 transition-colors font-medium text-sm disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      ) : (
+        <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+          <p className="text-sm text-charcoal leading-relaxed">{module.challenge}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+// Goal Section Component
+function GoalSection({
+  goal,
+  index,
+  onUpdate,
+}: {
+  goal: GoalWithTodos
+  index: number
+  onUpdate: () => void
+}) {
+  const [isEditing, setIsEditing] = useState(false)
+  const [title, setTitle] = useState(goal.title)
+  const [currentState, setCurrentState] = useState(goal.current_state || '')
+  const [gap, setGap] = useState(goal.gap || '')
+  const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    setError(null)
+    try {
+      await updateGoal(goal.id, {
+        title,
+        current_state: currentState,
+        gap,
+      })
+      setIsEditing(false)
+      onUpdate()
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to save')
+    } finally {
+      setIsSaving(false)
+    }
+  }
+
+  const handleCancel = () => {
+    setTitle(goal.title)
+    setCurrentState(goal.current_state || '')
+    setGap(goal.gap || '')
+    setIsEditing(false)
+    setError(null)
+  }
+
+  return (
+    <div className="border border-gray-200 rounded-lg p-6 hover:border-primary-yellow transition-colors">
+      {/* Goal Header */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex items-start space-x-3 flex-1">
+          <span className="flex-shrink-0 w-8 h-8 bg-primary-yellow text-white rounded-full flex items-center justify-center text-sm font-bold">
+            {index + 1}
+          </span>
+          {isEditing ? (
+            <input
+              type="text"
+              value={title}
+              onChange={(e) => setTitle(e.target.value)}
+              className="flex-1 px-3 py-2 border border-gray-300 rounded focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all text-base font-semibold text-charcoal-dark"
+              placeholder="Goal title..."
+            />
+          ) : (
+            <h4 className="text-base font-semibold text-charcoal-dark flex-1 pt-1">{goal.title}</h4>
+          )}
+        </div>
+        {!isEditing && (
+          <button
+            onClick={() => setIsEditing(true)}
+            className="ml-4 text-xs px-3 py-1 bg-primary-yellow-light text-charcoal-dark rounded hover:bg-primary-yellow transition-colors font-medium"
+          >
+            Edit
+          </button>
+        )}
+      </div>
+
+      {/* Current State */}
+      <div className="mb-4 pl-11">
+        <p className="text-xs font-semibold text-charcoal-dark mb-2 uppercase tracking-wide">
+          Current State
+        </p>
+        {isEditing ? (
+          <textarea
+            value={currentState}
+            onChange={(e) => setCurrentState(e.target.value)}
+            className="w-full min-h-[80px] px-3 py-2 border border-blue-300 rounded focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all text-sm text-charcoal bg-blue-50"
+            placeholder="Describe current state..."
+          />
+        ) : (
+          <div className="bg-blue-50 border border-blue-200 rounded p-3">
+            <p className="text-sm text-charcoal leading-relaxed">
+              {goal.current_state || 'No current state defined'}
+            </p>
+          </div>
+        )}
+      </div>
+
+      {/* Gap */}
+      <div className="mb-4 pl-11">
+        <p className="text-xs font-semibold text-charcoal-dark mb-2 uppercase tracking-wide">Gap</p>
+        {isEditing ? (
+          <textarea
+            value={gap}
+            onChange={(e) => setGap(e.target.value)}
+            className="w-full min-h-[80px] px-3 py-2 border border-yellow-300 rounded focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all text-sm text-charcoal bg-yellow-50"
+            placeholder="Describe the gap..."
+          />
+        ) : (
+          <div className="bg-yellow-50 border border-yellow-200 rounded p-3">
+            <p className="text-sm text-charcoal leading-relaxed">{goal.gap || 'No gap defined'}</p>
+          </div>
+        )}
+      </div>
+
+      {/* Save/Cancel Buttons */}
+      {isEditing && (
+        <div className="pl-11 mb-4">
+          {error && (
+            <div className="text-xs text-red-600 bg-red-50 border border-red-200 rounded p-2 mb-3">
+              {error}
+            </div>
+          )}
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={handleSave}
+              disabled={isSaving}
+              className="px-4 py-2 bg-primary-yellow text-charcoal-dark rounded hover:bg-primary-yellow-dark transition-colors font-medium text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isSaving ? 'Saving...' : 'Save'}
+            </button>
+            <button
+              onClick={handleCancel}
+              disabled={isSaving}
+              className="px-4 py-2 bg-gray-200 text-charcoal-dark rounded hover:bg-gray-300 transition-colors font-medium text-sm disabled:opacity-50"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* To-Dos */}
+      {goal.todos.length > 0 && (
+        <div className="pl-11">
+          <p className="text-xs font-semibold text-charcoal-dark mb-3 uppercase tracking-wide">
+            To-Do
+          </p>
+          <ul className="space-y-2">
+            {goal.todos.map((todo) => (
+              <li key={todo.id} className="flex items-start space-x-3">
+                <input
+                  type="checkbox"
+                  checked={todo.completed}
+                  readOnly
+                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-yellow focus:ring-primary-yellow cursor-pointer"
+                />
+                <span
+                  className={`text-sm flex-1 ${
+                    todo.completed ? 'text-charcoal-light line-through' : 'text-charcoal'
+                  }`}
+                >
+                  {todo.description}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   )
 }

@@ -1,6 +1,7 @@
 import { createClient } from './server'
 import type { ModuleWithGoals } from '@/types/product-vision'
 
+// Server-side queries
 export async function getAllModulesWithGoalsAndTodos(): Promise<ModuleWithGoals[]> {
   const supabase = await createClient()
 
