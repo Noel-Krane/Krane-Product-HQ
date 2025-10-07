@@ -4,6 +4,7 @@ import { useState } from 'react'
 import type { ModuleWithGoals, GoalWithTodos } from '@/types/product-vision'
 import { updateModuleChallenge, updateGoal } from '@/lib/supabase/mutations'
 import { useRouter } from 'next/navigation'
+import TodoList from './TodoList'
 
 interface ModuleTabsProps {
   modules: ModuleWithGoals[]
@@ -319,32 +320,9 @@ function GoalSection({
       )}
 
       {/* To-Dos */}
-      {goal.todos.length > 0 && (
-        <div className="pl-11">
-          <p className="text-xs font-semibold text-charcoal-dark mb-3 uppercase tracking-wide">
-            To-Do
-          </p>
-          <ul className="space-y-2">
-            {goal.todos.map((todo) => (
-              <li key={todo.id} className="flex items-start space-x-3">
-                <input
-                  type="checkbox"
-                  checked={todo.completed}
-                  readOnly
-                  className="mt-1 h-4 w-4 rounded border-gray-300 text-primary-yellow focus:ring-primary-yellow cursor-pointer"
-                />
-                <span
-                  className={`text-sm flex-1 ${
-                    todo.completed ? 'text-charcoal-light line-through' : 'text-charcoal'
-                  }`}
-                >
-                  {todo.description}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      <div className="pl-11">
+        <TodoList todos={goal.todos} goalId={goal.id} onUpdate={onUpdate} />
+      </div>
     </div>
   )
 }
