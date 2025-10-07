@@ -30,8 +30,8 @@ export default function LoginPage() {
         router.push('/dashboard')
         router.refresh()
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during login')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during login')
     } finally {
       setLoading(false)
     }
@@ -106,7 +106,7 @@ export default function LoginPage() {
 
           <div className="text-center">
             <p className="text-sm text-gray-600">
-              Don't have an account?{' '}
+              Don&apos;t have an account?{' '}
               <Link href="/register" className="font-medium text-blue-600 hover:text-blue-500">
                 Sign up
               </Link>

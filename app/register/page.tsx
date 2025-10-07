@@ -55,8 +55,8 @@ export default function RegisterPage() {
       if (data.user) {
         setSuccess(true)
       }
-    } catch (err: any) {
-      setError(err.message || 'An error occurred during registration')
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An error occurred during registration')
     } finally {
       setLoading(false)
     }
@@ -74,7 +74,7 @@ export default function RegisterPage() {
               <div className="flex">
                 <div className="ml-3">
                   <p className="text-sm font-medium text-green-800">
-                    We've sent you a confirmation email. Please check your inbox and click the
+                    We&apos;ve sent you a confirmation email. Please check your inbox and click the
                     confirmation link to activate your account.
                   </p>
                 </div>
