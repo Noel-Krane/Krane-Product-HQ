@@ -1,7 +1,7 @@
 import { createClient } from './server'
 import type { ModuleWithGoals, GoalTodo } from '@/types/product-vision'
 import type { SprintWithOutcomes } from '@/types/roadmap'
-import type { CompanyWithCriteria } from '@/types/companies'
+import type { ProjectWithCriteria } from '@/types/projects'
 
 // Extended type for todos with module and goal context
 export interface TodoWithContext extends GoalTodo {
@@ -176,38 +176,38 @@ export async function getAllSprintsWithOutcomes(): Promise<SprintWithOutcomes[]>
   return sprintsWithOutcomes
 }
 
-// Fetch all companies with their success criteria
-export async function getAllCompaniesWithCriteria(): Promise<CompanyWithCriteria[]> {
+// Fetch all projects with their success criteria
+export async function getAllProjectsWithCriteria(): Promise<ProjectWithCriteria[]> {
   const supabase = await createClient()
 
-  // Fetch all companies
-  const { data: companies, error: companiesError } = await supabase
-    .from('companies')
+  // Fetch all projects
+  const { data: projects, error: projectsError } = await supabase
+    .from('projects')
     .select('*')
     .order('order_index', { ascending: true })
 
-  if (companiesError) {
-    console.error('Error fetching companies:', companiesError)
+  if (projectsError) {
+    console.error('Error fetching projects:', projectsError)
     return []
   }
 
-  // Fetch success criteria for each company
-  const companiesWithCriteria: CompanyWithCriteria[] = await Promise.all(
-    companies.map(async (company) => {
+  // Fetch success criteria for each project
+  const projectsWithCriteria: ProjectWithCriteria[] = await Promise.all(
+    projects.map(async (project) => {
       const { data: criteria, error: criteriaError } = await supabase
         .from('success_criteria')
         .select('*')
-        .eq('company_id', company.id)
+        .eq('project_id', project.id)
         .order('order_index', { ascending: true })
 
       if (criteriaError) {
         console.error('Error fetching criteria:', criteriaError)
-        return { ...company, criteria: [] }
+        return { ...project, criteria: [] }
       }
 
-      return { ...company, criteria: criteria || [] }
+      return { ...project, criteria: criteria || [] }
     })
   )
 
-  return companiesWithCriteria
+  return projectsWithCriteria
 }

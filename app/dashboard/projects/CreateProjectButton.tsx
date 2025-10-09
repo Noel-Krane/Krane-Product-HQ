@@ -1,12 +1,13 @@
 'use client'
 
 import { useState } from 'react'
-import { createCompany } from '@/lib/supabase/companies-mutations'
+import { createProject } from '@/lib/supabase/projects-mutations'
 import { useRouter } from 'next/navigation'
 
-export default function CreateCompanyButton() {
+export default function CreateProjectButton() {
   const [isModalOpen, setIsModalOpen] = useState(false)
-  const [name, setName] = useState('')
+  const [companyName, setCompanyName] = useState('')
+  const [projectName, setProjectName] = useState('')
   const [description, setDescription] = useState('')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -16,26 +17,27 @@ export default function CreateCompanyButton() {
     e.preventDefault()
     setError(null)
 
-    if (!name.trim()) {
-      setError('Company name is required.')
+    if (!projectName.trim()) {
+      setError('Project name is required.')
       return
     }
 
     setIsSaving(true)
     try {
-      // Get the next order index
-      await createCompany({
-        name,
+      await createProject({
+        name: projectName,
+        company_name: companyName || null,
         description: description || null,
         order_index: Date.now(), // Simple ordering by creation time
       })
       setIsModalOpen(false)
-      setName('')
+      setCompanyName('')
+      setProjectName('')
       setDescription('')
       router.refresh()
     } catch (err) {
-      console.error('Failed to create company:', err)
-      setError('Failed to create company. Please try again.')
+      console.error('Failed to create project:', err)
+      setError('Failed to create project. Please try again.')
     } finally {
       setIsSaving(false)
     }
@@ -47,7 +49,7 @@ export default function CreateCompanyButton() {
         onClick={() => setIsModalOpen(true)}
         className="px-5 py-2 bg-primary-yellow text-charcoal-dark rounded-lg hover:bg-primary-yellow-dark transition-colors font-medium shadow-yellow"
       >
-        + Create Company
+        + Create Project
       </button>
 
       {/* Modal */}
@@ -55,22 +57,36 @@ export default function CreateCompanyButton() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-md w-full">
             <div className="p-6 border-b border-gray-200">
-              <h2 className="text-2xl font-bold text-charcoal-dark">Create New Company</h2>
+              <h2 className="text-2xl font-bold text-charcoal-dark">Create New Project</h2>
             </div>
             <form onSubmit={handleSubmit} className="p-6">
               <div className="mb-4">
-                <label htmlFor="name" className="block text-sm font-medium text-charcoal-dark mb-1">
+                <label htmlFor="companyName" className="block text-sm font-medium text-charcoal-dark mb-1">
                   Company Name
                 </label>
                 <input
                   type="text"
-                  id="name"
-                  value={name}
-                  onChange={(e) => setName(e.target.value)}
+                  id="companyName"
+                  value={companyName}
+                  onChange={(e) => setCompanyName(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all text-charcoal"
                   placeholder="e.g., Acme Corporation"
-                  required
                   autoFocus
+                />
+              </div>
+
+              <div className="mb-4">
+                <label htmlFor="projectName" className="block text-sm font-medium text-charcoal-dark mb-1">
+                  Project Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  id="projectName"
+                  value={projectName}
+                  onChange={(e) => setProjectName(e.target.value)}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all text-charcoal"
+                  placeholder="e.g., Downtown Office Tower"
+                  required
                 />
               </div>
 
@@ -87,7 +103,7 @@ export default function CreateCompanyButton() {
                   onChange={(e) => setDescription(e.target.value)}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:border-primary-yellow focus:ring-2 focus:ring-primary-yellow focus:ring-opacity-20 transition-all text-charcoal"
-                  placeholder="Brief description of the company..."
+                  placeholder="Brief description of the project..."
                 />
               </div>
 
@@ -102,7 +118,8 @@ export default function CreateCompanyButton() {
                   type="button"
                   onClick={() => {
                     setIsModalOpen(false)
-                    setName('')
+                    setCompanyName('')
+                    setProjectName('')
                     setDescription('')
                     setError(null)
                   }}
@@ -116,7 +133,7 @@ export default function CreateCompanyButton() {
                   className="px-5 py-2 bg-primary-yellow text-charcoal-dark rounded-lg hover:bg-primary-yellow-dark transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={isSaving}
                 >
-                  {isSaving ? 'Creating...' : 'Create Company'}
+                  {isSaving ? 'Creating...' : 'Create Project'}
                 </button>
               </div>
             </form>
@@ -126,4 +143,3 @@ export default function CreateCompanyButton() {
     </>
   )
 }
-

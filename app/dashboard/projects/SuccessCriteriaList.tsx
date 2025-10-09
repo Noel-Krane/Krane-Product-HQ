@@ -1,22 +1,22 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import type { SuccessCriterion } from '@/types/companies'
+import type { SuccessCriterion } from '@/types/projects'
 import {
   updateSuccessCriterion,
   createSuccessCriterion,
   deleteSuccessCriterion,
-} from '@/lib/supabase/companies-mutations'
+} from '@/lib/supabase/projects-mutations'
 
 interface SuccessCriteriaListProps {
   criteria: SuccessCriterion[]
-  companyId: string
+  projectId: string
   onUpdate: () => void
 }
 
 export default function SuccessCriteriaList({
   criteria,
-  companyId,
+  projectId,
   onUpdate,
 }: SuccessCriteriaListProps) {
   const [editingCriterionId, setEditingCriterionId] = useState<string | null>(null)
@@ -76,7 +76,7 @@ export default function SuccessCriteriaList({
     try {
       const nextOrder = localCriteria.length > 0 ? Math.max(...localCriteria.map((c) => c.order_index)) + 1 : 1
       await createSuccessCriterion({
-        company_id: companyId,
+        project_id: projectId,
         description: newCriterionText,
         order_index: nextOrder,
         completed: false,

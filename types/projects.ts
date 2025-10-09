@@ -1,6 +1,7 @@
-export interface Company {
+export interface Project {
   id: string
   name: string
+  company_name: string | null
   description: string | null
   order_index: number
   created_at: string
@@ -9,7 +10,7 @@ export interface Company {
 
 export interface SuccessCriterion {
   id: string
-  company_id: string
+  project_id: string
   description: string
   completed: boolean
   order_index: number
@@ -18,7 +19,7 @@ export interface SuccessCriterion {
 }
 
 // Nested type for fetching
-export interface CompanyWithCriteria extends Company {
+export interface ProjectWithCriteria extends Project {
   criteria: SuccessCriterion[]
 }
 

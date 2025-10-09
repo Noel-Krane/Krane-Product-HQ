@@ -1,13 +1,13 @@
 import { createClient } from './client'
-import type { Company, SuccessCriterion } from '@/types/companies'
+import type { Project, SuccessCriterion } from '@/types/projects'
 
-// Company Operations
-export async function createCompany(company: Omit<Company, 'id' | 'created_at' | 'updated_at'>) {
+// Project Operations
+export async function createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>) {
   const supabase = createClient()
 
-  const { data, error } = await supabase
-    .from('companies')
-    .insert(company)
+  const { data, error} = await supabase
+    .from('projects')
+    .insert(project)
     .select()
     .single()
 
@@ -15,16 +15,16 @@ export async function createCompany(company: Omit<Company, 'id' | 'created_at' |
   return data
 }
 
-export async function updateCompany(
-  companyId: string,
-  updates: Partial<Omit<Company, 'id' | 'created_at' | 'updated_at'>>
+export async function updateProject(
+  projectId: string,
+  updates: Partial<Omit<Project, 'id' | 'created_at' | 'updated_at'>>
 ) {
   const supabase = createClient()
 
   const { data, error } = await supabase
-    .from('companies')
+    .from('projects')
     .update({ ...updates, updated_at: new Date().toISOString() })
-    .eq('id', companyId)
+    .eq('id', projectId)
     .select()
     .single()
 
@@ -32,13 +32,13 @@ export async function updateCompany(
   return data
 }
 
-export async function deleteCompany(companyId: string) {
+export async function deleteProject(projectId: string) {
   const supabase = createClient()
 
   const { error } = await supabase
-    .from('companies')
+    .from('projects')
     .delete()
-    .eq('id', companyId)
+    .eq('id', projectId)
 
   if (error) throw error
 }
