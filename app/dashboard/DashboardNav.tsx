@@ -11,6 +11,7 @@ export default function DashboardNav() {
     { name: 'Core Product', href: '/dashboard/core-product' },
     { name: 'Prioritization', href: '/dashboard/prioritization' },
     { name: 'Roadmap', href: '/dashboard/roadmap' },
+    { name: 'Companies', href: '/dashboard/companies' },
   ]
 
   return (

@@ -1,6 +1,7 @@
 import { createClient } from './server'
 import type { ModuleWithGoals, GoalTodo } from '@/types/product-vision'
 import type { SprintWithOutcomes } from '@/types/roadmap'
+import type { CompanyWithCriteria } from '@/types/companies'
 
 // Extended type for todos with module and goal context
 export interface TodoWithContext extends GoalTodo {
@@ -173,4 +174,40 @@ export async function getAllSprintsWithOutcomes(): Promise<SprintWithOutcomes[]>
   )
 
   return sprintsWithOutcomes
+}
+
+// Fetch all companies with their success criteria
+export async function getAllCompaniesWithCriteria(): Promise<CompanyWithCriteria[]> {
+  const supabase = await createClient()
+
+  // Fetch all companies
+  const { data: companies, error: companiesError } = await supabase
+    .from('companies')
+    .select('*')
+    .order('order_index', { ascending: true })
+
+  if (companiesError) {
+    console.error('Error fetching companies:', companiesError)
+    return []
+  }
+
+  // Fetch success criteria for each company
+  const companiesWithCriteria: CompanyWithCriteria[] = await Promise.all(
+    companies.map(async (company) => {
+      const { data: criteria, error: criteriaError } = await supabase
+        .from('success_criteria')
+        .select('*')
+        .eq('company_id', company.id)
+        .order('order_index', { ascending: true })
+
+      if (criteriaError) {
+        console.error('Error fetching criteria:', criteriaError)
+        return { ...company, criteria: [] }
+      }
+
+      return { ...company, criteria: criteria || [] }
+    })
+  )
+
+  return companiesWithCriteria
 }
