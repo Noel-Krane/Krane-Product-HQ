@@ -2,16 +2,21 @@ import { createClient } from './client'
 import type { Project, SuccessCriterion } from '@/types/projects'
 
 // Project Operations
-export async function createProject(project: Omit<Project, 'id' | 'created_at' | 'updated_at'>) {
+export async function createProject(
+  project: Omit<Project, 'id' | 'created_at' | 'updated_at' | 'order_index'> & { order_index?: number }
+) {
   const supabase = createClient()
 
-  const { data, error} = await supabase
+  const { data, error } = await supabase
     .from('projects')
     .insert(project)
     .select()
     .single()
 
-  if (error) throw error
+  if (error) {
+    console.error('Supabase insert error:', error)
+    throw error
+  }
   return data
 }
 

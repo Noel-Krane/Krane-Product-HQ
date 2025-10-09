@@ -28,7 +28,6 @@ export default function CreateProjectButton() {
         name: projectName,
         company_name: companyName || null,
         description: description || null,
-        order_index: Date.now(), // Simple ordering by creation time
       })
       setIsModalOpen(false)
       setCompanyName('')
